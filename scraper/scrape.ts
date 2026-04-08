@@ -889,7 +889,17 @@ async function parseAndSave() {
             : typeof item.imageUrl === "string"
             ? item.imageUrl
             : null,
-        gallery: details.gallery.length ? details.gallery : item.gallery,
+        gallery: (
+  (Array.isArray(details.gallery) ? details.gallery : [])
+    .filter((img): img is string => typeof img === "string" && img.length > 0)
+    .length
+    ? (Array.isArray(details.gallery) ? details.gallery : []).filter(
+        (img): img is string => typeof img === "string" && img.length > 0
+      )
+    : (Array.isArray(item.gallery) ? item.gallery : []).filter(
+        (img): img is string => typeof img === "string" && img.length > 0
+      )
+),
         description: translateDescription(
           details.description ?? item.description
         ),
