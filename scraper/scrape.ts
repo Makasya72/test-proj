@@ -10,7 +10,7 @@ import {
   translateBrand,
   translateDescription,
   translateValue,
-} from '../lib/translate';
+} from "../lib/translate";
 
 type ScrapedCar = {
   sourceUrl: string;
@@ -520,51 +520,56 @@ async function getBestImageFromCard(card: any): Promise<string | null> {
 }
 
 async function scrapeDetails(detailPage: any, sourceUrl: string) {
-  await detailPage.goto(sourceUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await detailPage.goto(sourceUrl, {
+    waitUntil: "domcontentloaded",
+    timeout: 60000,
+  });
 
   const title =
     (await textBySelectors(detailPage, [
-      'h1',
-      '.contents h1',
-      '.car_title',
-      '.headingWrap h1',
-      '.cf h1'
-    ])) || '';
+      "h1",
+      ".contents h1",
+      ".car_title",
+      ".headingWrap h1",
+      ".cf h1",
+    ])) || "";
 
   const price =
     parsePrice(
       await textBySelectors(detailPage, [
-        '.mainPrice',
-        '.carPrice',
-        '.totalPrice .price',
-        '[class*="price"]'
+        ".mainPrice",
+        ".carPrice",
+        ".totalPrice .price",
+        '[class*="price"]',
       ])
     ) || null;
 
-  const imageCandidates = await detailPage.locator('img').evaluateAll((imgs: Element[]) => {
-    return imgs
-      .map((img) => {
-        const el = img as HTMLImageElement;
-        return (
-          el.getAttribute('data-src') ||
-          el.getAttribute('src') ||
-          el.getAttribute('data-original') ||
-          ''
-        );
-      })
-      .filter((src) => {
-        const value = (src || '').toLowerCase();
-        return (
-          Boolean(value) &&
-          !value.includes('logo') &&
-          !value.includes('icon') &&
-          !value.includes('common') &&
-          !value.includes('banner') &&
-          !value.includes('btn') &&
-          !value.includes('noimage')
-        );
-      });
-  });
+  const imageCandidates = await detailPage
+    .locator("img")
+    .evaluateAll((imgs: Element[]) => {
+      return imgs
+        .map((img) => {
+          const el = img as HTMLImageElement;
+          return (
+            el.getAttribute("data-src") ||
+            el.getAttribute("src") ||
+            el.getAttribute("data-original") ||
+            ""
+          );
+        })
+        .filter((src) => {
+          const value = (src || "").toLowerCase();
+          return (
+            Boolean(value) &&
+            !value.includes("logo") &&
+            !value.includes("icon") &&
+            !value.includes("common") &&
+            !value.includes("banner") &&
+            !value.includes("btn") &&
+            !value.includes("noimage")
+          );
+        });
+    });
 
   const gallery = Array.from(
     new Set(
@@ -577,13 +582,19 @@ async function scrapeDetails(detailPage: any, sourceUrl: string) {
 
           let absoluteUrl: string | null = null;
 
-          if (cleaned.startsWith('//')) {
+          if (cleaned.startsWith("//")) {
             absoluteUrl = `https:${cleaned}`;
-          } else if (cleaned.startsWith('http://') || cleaned.startsWith('https://')) {
+          } else if (
+            cleaned.startsWith("http://") ||
+            cleaned.startsWith("https://")
+          ) {
             absoluteUrl = cleaned;
           } else {
             try {
-              absoluteUrl = new URL(cleaned, 'https://www.carsensor.net/').toString();
+              absoluteUrl = new URL(
+                cleaned,
+                "https://www.carsensor.net/"
+              ).toString();
             } catch {
               absoluteUrl = null;
             }
@@ -594,14 +605,14 @@ async function scrapeDetails(detailPage: any, sourceUrl: string) {
           const lower = absoluteUrl.toLowerCase();
 
           if (
-            lower.includes('logo') ||
-            lower.includes('icon') ||
-            lower.includes('common') ||
-            lower.includes('banner') ||
-            lower.includes('parts') ||
-            lower.includes('btn') ||
-            lower.includes('noimage') ||
-            lower.includes('spacer')
+            lower.includes("logo") ||
+            lower.includes("icon") ||
+            lower.includes("common") ||
+            lower.includes("banner") ||
+            lower.includes("parts") ||
+            lower.includes("btn") ||
+            lower.includes("noimage") ||
+            lower.includes("spacer")
           ) {
             return null;
           }
@@ -612,25 +623,29 @@ async function scrapeDetails(detailPage: any, sourceUrl: string) {
 
           return absoluteUrl;
         })
-        .filter((item: string | null | undefined): item is string => Boolean(item))
+        .filter((item: string | null | undefined): item is string =>
+          Boolean(item)
+        )
     )
   );
 
-  const pairs = await detailPage.locator('tr').evaluateAll((rows: Element[]) => {
-    const result: { key: string; value: string }[] = [];
+  const pairs = await detailPage
+    .locator("tr")
+    .evaluateAll((rows: Element[]) => {
+      const result: { key: string; value: string }[] = [];
 
-    for (const row of rows) {
-      const cells = Array.from(row.querySelectorAll('th,td')).map((cell) =>
-        (cell.textContent || '').replace(/\s+/g, ' ').trim()
-      );
+      for (const row of rows) {
+        const cells = Array.from(row.querySelectorAll("th,td")).map((cell) =>
+          (cell.textContent || "").replace(/\s+/g, " ").trim()
+        );
 
-      if (cells.length >= 2) {
-        result.push({ key: cells[0], value: cells[1] });
+        if (cells.length >= 2) {
+          result.push({ key: cells[0], value: cells[1] });
+        }
       }
-    }
 
-    return result;
-  });
+      return result;
+    });
 
   let bodyType: string | null = null;
   let transmission: string | null = null;
@@ -665,21 +680,21 @@ async function scrapeDetails(detailPage: any, sourceUrl: string) {
     const mappedKey = JAPANESE_LABEL_MAP[key];
     if (!mappedKey) continue;
 
-    if (mappedKey === 'bodyType') bodyType = value;
-    if (mappedKey === 'transmission') transmission = value;
-    if (mappedKey === 'fuelType') fuelType = value;
-    if (mappedKey === 'color') color = value;
-    if (mappedKey === 'location') location = value;
-    if (mappedKey === 'engineCapacity') engineCapacity = value;
+    if (mappedKey === "bodyType") bodyType = value;
+    if (mappedKey === "transmission") transmission = value;
+    if (mappedKey === "fuelType") fuelType = value;
+    if (mappedKey === "color") color = value;
+    if (mappedKey === "location") location = value;
+    if (mappedKey === "engineCapacity") engineCapacity = value;
   }
 
   const description =
     (await textBySelectors(detailPage, [
-      '.js_readmore_target',
-      '.carDescription',
-      '.description',
-      '.shopComment',
-      '.cassetteWrap'
+      ".js_readmore_target",
+      ".carDescription",
+      ".description",
+      ".shopComment",
+      ".cassetteWrap",
     ])) || null;
 
   return {
@@ -697,7 +712,7 @@ async function scrapeDetails(detailPage: any, sourceUrl: string) {
     imageUrl: gallery[0] || null,
     gallery,
     description,
-    rawDetailPairs: pairs
+    rawDetailPairs: pairs,
   };
 }
 
@@ -845,35 +860,44 @@ async function parseAndSave() {
           ? item.totalPriceJpy
           : null;
 
-          const merged: ScrapedCar = {
-            ...item,
-            title: cleanTitle(bestTitle) || bestTitle,
-            brand:
-              detectBrandFromText(bestTitle) ||
-              translateBrand(split.brand || item.brand) ||
-              split.brand ||
-              item.brand,
-            model: cleanModel(split.model || item.model),
-            year: details.year ?? item.year,
-            mileageKm: details.mileageKm ?? item.mileageKm,
-            priceJpy: safePriceJpy,
-            totalPriceJpy: safeTotalPriceJpy,
-            priceRub: null,
-            totalPriceRub: null,
-            bodyType: translateValue(details.bodyType ?? item.bodyType),
-            transmission: translateValue(details.transmission ?? item.transmission),
-            fuelType: translateValue(details.fuelType ?? item.fuelType),
-            color: translateValue(details.color ?? item.color),
-            location: normalizeLocation(details.location ?? item.location),
-            engineCapacity: normalizeEngineCapacity(details.engineCapacity ?? item.engineCapacity),
-            imageUrl: details.imageUrl ?? item.imageUrl,
-            gallery: details.gallery.length ? details.gallery : item.gallery,
-            description: translateDescription(details.description ?? item.description),
-            rawPayload: {
-              ...(item.rawPayload || {}),
-              detailPairs: details.rawDetailPairs,
-            },
-          };
+      const merged: ScrapedCar = {
+        ...item,
+        title: cleanTitle(bestTitle) || bestTitle,
+        brand:
+          detectBrandFromText(bestTitle) ||
+          translateBrand(split.brand || item.brand) ||
+          split.brand ||
+          item.brand,
+        model: cleanModel(split.model || item.model),
+        year: details.year ?? item.year,
+        mileageKm: details.mileageKm ?? item.mileageKm,
+        priceJpy: safePriceJpy,
+        totalPriceJpy: safeTotalPriceJpy,
+        priceRub: null,
+        totalPriceRub: null,
+        bodyType: translateValue(details.bodyType ?? item.bodyType),
+        transmission: translateValue(details.transmission ?? item.transmission),
+        fuelType: translateValue(details.fuelType ?? item.fuelType),
+        color: translateValue(details.color ?? item.color),
+        location: normalizeLocation(details.location ?? item.location),
+        engineCapacity: normalizeEngineCapacity(
+          details.engineCapacity ?? item.engineCapacity
+        ),
+        imageUrl:
+          typeof details.imageUrl === "string"
+            ? details.imageUrl
+            : typeof item.imageUrl === "string"
+            ? item.imageUrl
+            : null,
+        gallery: details.gallery.length ? details.gallery : item.gallery,
+        description: translateDescription(
+          details.description ?? item.description
+        ),
+        rawPayload: {
+          ...(item.rawPayload || {}),
+          detailPairs: details.rawDetailPairs,
+        },
+      };
 
       await db.car.upsert({
         where: { sourceUrl: merged.sourceUrl },
