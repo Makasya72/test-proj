@@ -873,8 +873,6 @@ async function parseAndSave() {
         mileageKm: details.mileageKm ?? item.mileageKm,
         priceJpy: safePriceJpy,
         totalPriceJpy: safeTotalPriceJpy,
-        priceRub: null,
-        totalPriceRub: null,
         bodyType: translateValue(details.bodyType ?? item.bodyType),
         transmission: translateValue(details.transmission ?? item.transmission),
         fuelType: translateValue(details.fuelType ?? item.fuelType),
