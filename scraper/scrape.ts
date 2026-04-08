@@ -902,7 +902,7 @@ async function parseAndSave() {
           details.description ?? item.description
         ),
         rawPayload: {
-          ...(item.rawPayload || {}),
+          ...(item.rawPayload && typeof item.rawPayload === "object" ? item.rawPayload : {}),
           detailPairs: details.rawDetailPairs,
         },
       };
