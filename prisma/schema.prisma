@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Car {
+  id             String   @id @default(cuid())
+  sourceUrl      String   @unique
+  externalId     String?  
+  title          String
+  brand          String?
+  model          String?
+  year           Int?
+  mileageKm      Int?
+  priceJpy       Int?
+  totalPriceJpy  Int?
+  bodyType       String?
+  transmission   String?
+  fuelType       String?
+  color          String?
+  location       String?
+  engineCapacity String?
+  imageUrl       String?
+  gallery        Json?
+  description    String?
+  rawPayload     Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([brand])
+  @@index([model])
+  @@index([year])
+  @@index([priceJpy])
+  @@index([mileageKm])
+}
