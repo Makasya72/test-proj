@@ -612,7 +612,7 @@ async function scrapeDetails(detailPage: any, sourceUrl: string) {
 
           return absoluteUrl;
         })
-        .filter((item): item is string => Boolean(item))
+        .filter((item: string | null | undefined): item is string => Boolean(item))
     )
   );
 
